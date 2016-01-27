@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans:beans xmlns ="http://www.springframework.org/schema/batch" 
+       xmlns:beans="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+                    http://www.springframework.org/schema/batch 
+                    http://www.springframework.org/schema/batch/spring-batch-2.1.xsd"> 
+
+    <beans:import resource="../launch-context.xml"/>
+
+    <beans:bean id="idIncrementer"
+                class="org.springframework.batch.core.launch.support.RunIdIncrementer"/>
+
+     <!-- The bean that moves the file to the in-process directory -->
+    <beans:bean id="fileMoveTasklet"
+                class="com.bjss.plynn.batchDemo.BatchDemo" scope="step">
+        <beans:property name="fileNameInjected" value="#{jobParameters[inFileName]}" />
+    </beans:bean>
+
+    <!-- The step definition for the helloWorldJob -->
+    <step id="fileMoveStep">
+        <tasklet ref="fileMoveTasklet">
+        </tasklet>
+    </step>
+
+    <!-- The job definition for the helloWorldJob -->
+    <job id="demoOneJob" incrementer="idIncrementer">
+        <step id="OnlyOneStep" parent="fileMoveStep" />
+
+    </job>
+
+
+<!--  What's below is just scratch notes -->
+
+    <beans:bean id="systemCommandTasklet" class="org.springframework.batch.core.step.tasklet.SystemCommandTasklet" scope="step">
+        <!--        <property name="command" value="mv {jobParameters['inFileName']} {jobParameters['outFileName']}"/> -->
+        <beans:property name="command" value="mv --no-clobber #{jobParameters['inDirectoryName']}/#{jobParameters['inFileName']} #{jobParameters['inDirectoryName']}/inFlight/#{jobParameters['inFileName']}" />
+        <beans:property name="timeout" value="60000"/>
+        <!--   <beans:property name="workingDirectory" value="/home/peter/IdeaProjects/try"/> -->
+    </beans:bean>
+    <!--
+        <step id="systemCommandMoveStep">
+            <tasklet ref="systemCommandTasklet">
+            </tasklet>
+        </step>
+
+    -->
+
+</beans:beans> 
