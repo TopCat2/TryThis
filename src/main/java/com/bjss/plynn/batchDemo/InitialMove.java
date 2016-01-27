@@ -5,9 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.scope.context.StepContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 
 import java.nio.file.FileSystems;
@@ -17,12 +15,12 @@ import java.util.Date;
 
 
 /**
- * The BatchDemo tasklet is used to write out a simple message to
+ * The InitialMove tasklet is used to write out a simple message to
  * standard out during the processing of your job.
  */
-public class BatchDemo implements Tasklet {
+public class InitialMove implements Tasklet {
 
-    Logger myLogger = LoggerFactory.getLogger(BatchDemo.class);
+    Logger myLogger = LoggerFactory.getLogger(InitialMove.class);
 
     /* Getter and setter for injected value */
     public String getfileNameInjected() {
