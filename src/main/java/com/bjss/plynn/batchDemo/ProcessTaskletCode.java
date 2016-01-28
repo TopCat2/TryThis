@@ -15,12 +15,20 @@ import java.util.Date;
 
 
 /**
- * The InitialMove tasklet is used to write out a simple message to
- * standard out during the processing of your job.
+ * The Process tasklet represents processing a file and then moving it to
+ * a directory of completed files for archiving.  It is the secong step of
+ * the simple Spring Batch processing demo.
  */
 public class ProcessTaskletCode implements Tasklet {
 
     Logger myLogger = LoggerFactory.getLogger(ProcessTaskletCode.class);
+
+    /*
+     * Two methods of passing parameters to the batch are illustrated.  The variable "fileNameInjected" is injected
+     * by the batch definition demoOne.xml, from the run parameter outFileName.  The directory name is
+     * taken from the parameters directly through the step context, from inFileName.
+     *   Note also the use of the job execution context to get changed file names from earlier steps.
+     */
 
     /* Injected value */
     private String fileNameInjected = "";
@@ -31,13 +39,6 @@ public class ProcessTaskletCode implements Tasklet {
         this.fileNameInjected = fileNameInjected;
     }
 
-
-    /*
-    Two methods of passing parameters to the batch are illustrated.  The variable "fileNameInjected" is injected
-    by the batch definition demoOne.xml, from the run parameter outFileName.  The directory name is
-    taken from the parameters directly through the step context, from inFileName.
-      Note also the use of the job execution context to get changed file names from earlier steps.
-     */
     public RepeatStatus execute( StepContribution arg0, ChunkContext arg1 ) throws Exception {
 
         PathFinder pathFinder;
@@ -51,7 +52,7 @@ public class ProcessTaskletCode implements Tasklet {
         }
         // Get Path object to the file to process
         Path workFilePath=pathFinder.getWorkFilePath();
-        Path doneFilePath=pathFinder.getWorkFilePath();
+        Path doneFilePath=pathFinder.getDoneFilePath();
         myLogger.info ("\n***************************************");
         myLogger.info("The work path object is {}, and the work path fileName is {}", workFilePath, workFilePath.getFileName());
         arg0.setExitStatus(ExitStatus.COMPLETED);
@@ -68,7 +69,7 @@ public class ProcessTaskletCode implements Tasklet {
             return RepeatStatus.FINISHED;
         }
         try {
-            // Move the file
+            // Move the file to the completed directory
             Files.move(workFilePath, doneFilePath);
             myLogger.info("Moved processed file {} to {}", workFilePath, doneFilePath);
         } catch (Exception e) {

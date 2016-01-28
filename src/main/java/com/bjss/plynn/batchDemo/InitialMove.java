@@ -14,24 +14,27 @@ import java.util.Date;
 
 
 /**
- * The InitialMove tasklet is used to write out a simple message to
- * standard out during the processing of your job.
+ * The InitialMove tasklet moves an incoming file to a working directory, so that
+ * other processes will not claim the same file.  It is the first step of the simple
+ * Spring Batch processing demo..
  */
+
 public class InitialMove implements Tasklet {
 
     Logger myLogger = LoggerFactory.getLogger(InitialMove.class);
+
+    /*
+     * Two methods of passing parameters to the batch are illustrated.  The variable "fileNameInjected" is injected
+     * by the batch definition demoOne.xml, from the run parameter outFileName.  The directory name is
+     * taken from the parameters directly through the step context, from inFileName.
+     *   Note also the use of the job execution context to pass changed file names to later steps.
+     */
 
     /* Injected value */
     private String fileNameInjected = "";
     public String getfileNameInjected() { return fileNameInjected; }
     public void setfileNameInjected(String fileNameInjected) { this.fileNameInjected = fileNameInjected; }
 
-    /*
-    Two methods of passing parameters to the batch are illustrated.  The variable "fileNameInjected" is injected
-    by the batch definition demoOne.xml, from the run parameter outFileName.  The directory name is
-    taken from the parameters directly through the step context, from inFileName.
-      Note also the use of the job execution context to pass changed file names to later steps.
-     */
     public RepeatStatus execute( StepContribution arg0, ChunkContext arg1 ) throws Exception {
 
         PathFinder pathFinder;
@@ -59,10 +62,10 @@ public class InitialMove implements Tasklet {
            long now = new Date().getTime();
             String append = "." + Long.toHexString(now);
             if (Files.exists(workFilePath)) {
-                myLogger.info("{} already exists.  Add timestamp {}",
+                myLogger.info("Working file {} already exists.  Add timestamp {}",
                         workFilePath, append);
             } else {
-                myLogger.info("{} already exists.  Add timestamp {}",
+                myLogger.info("Processed file {} already exists.  Add timestamp {}",
                         doneFilePath, append);
             }
             pathFinder.setFileName(pathFinder.getFileName().concat(append));
@@ -72,7 +75,7 @@ public class InitialMove implements Tasklet {
                     .put("changedFileName", pathFinder.getFileName());
         }
         try {
-            // Move the file
+            // Move the file to the working directory
             Files.move(inFilePath, workFilePath);
             myLogger.info("Moved file {} to {}", inFilePath, workFilePath);
          } catch (Exception e) {
