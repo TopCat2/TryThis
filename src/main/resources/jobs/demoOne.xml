@@ -14,19 +14,28 @@
 
      <!-- The bean that moves the file to the in-process directory -->
     <beans:bean id="fileMoveTasklet"
-                class="com.bjss.plynn.batchDemo.BatchDemo" scope="step">
+                class="com.bjss.plynn.batchDemo.InitialMove" scope="step">
         <beans:property name="fileNameInjected" value="#{jobParameters[inFileName]}" />
     </beans:bean>
 
-    <!-- The step definition for the helloWorldJob -->
+    <beans:bean id="fileProcessTasklet"
+                class="com.bjss.plynn.batchDemo.ProcessTaskletCode" scope="step">
+        <beans:property name="fileNameInjected" value="#{jobParameters[inFileName]}" />
+    </beans:bean>
+
     <step id="fileMoveStep">
         <tasklet ref="fileMoveTasklet">
         </tasklet>
     </step>
 
-    <!-- The job definition for the helloWorldJob -->
+    <step id="fileProcessStep">
+        <tasklet ref="fileProcessTasklet">
+        </tasklet>
+    </step>
+
     <job id="demoOneJob" incrementer="idIncrementer">
-        <step id="OnlyOneStep" parent="fileMoveStep" />
+        <step id="FirstMoveStep" parent="fileMoveStep" next="SecondProcessStep"/>
+        <step id="SecondProcessStep" parent="fileProcessStep"/>
 
     </job>
 

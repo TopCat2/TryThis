@@ -48,36 +48,22 @@ public class ProcessTaskletCode implements Tasklet {
                 getString("changedFileName", fileNameInjected);
         myLogger.info ("\n***************************************\nThe processing directory is {} plus inFlight.  The processing file is {}\n***************************************",
                 directoryName, fileName);
-         // Get Path objects to source file and working location
-        Path inFilePath = FileSystems.getDefault().getPath(directoryName, fileName);
-        myLogger.info("The path object is {}, and the path fileName is {}", inFilePath, inFilePath.getFileName());
+         // Get Path object to the file to process
         Path workFilePath=FileSystems.getDefault().getPath(directoryName, "/inFlight", fileName);
         myLogger.info("The work path object is {}, and the work path fileName is {}", workFilePath, workFilePath.getFileName());
         arg0.setExitStatus(ExitStatus.COMPLETED);
-//
-//        try {
-//            // Move the file
-//            Files.move(inFilePath, workFilePath);
-//            myLogger.info("Moved file {} to {}", inFilePath, workFilePath);
-//        } catch (java.nio.file.FileAlreadyExistsException exists) {
-//            // If a work file with the same directoryName exists, add an arbitrary sequence.
-//            // Take the current date/time in hexadecimal.
-//            long now = new Date().getTime();
-//            String append = "." + Long.toHexString(now);
-//            String newFileName = fileName.concat(append);
-//            workFilePath = FileSystems.getDefault().getPath(directoryName, "/inFlight", newFileName);
-//            myLogger.info("{} already exists.  Add timestamp and move file to {} instead.", inFilePath, workFilePath);
-//            Files.move(inFilePath, workFilePath);
-//            /* ... and put that modified file name into the job execution context */
-//            arg1.getStepContext().getStepExecution().getJobExecution().getExecutionContext()
-//                    .put("changedFileName", newFileName);
-//            myLogger.info("Moved file {} to {}", inFilePath, workFilePath);
-//        } catch (Exception e) {
-//            // and fail if that doesn't work either.
-//            myLogger.error("Got an error in moving {} to {}.", inFilePath, workFilePath);
-//            myLogger.error(e.toString());
-//         arg0.setExitStatus(ExitStatus.FAILED);
-//        }
+
+
+        try {
+            // Move the file
+            long howbig = Files.size(workFilePath);
+            myLogger.info("The size of the file is {} bytes", howbig);
+        } catch (Exception e) {
+            // and fail if that doesn't work either.
+            myLogger.error("Got an error in prodessing {}.", workFilePath);
+            myLogger.error(e.toString());
+         arg0.setExitStatus(ExitStatus.FAILED);
+        }
         return RepeatStatus.FINISHED;
     }
 }

@@ -16,14 +16,8 @@
 		<property name="transactionManager" ref="transactionManager" />
 		<property name="dataSource" ref="dataSource" />
 	</bean>
-<!--
-	<bean id="transactionManager"
-		class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />
--->
 
-
-
-
+<!-- Used for restarting and other job management -->
 	<bean id="jobOperator"
 		class="org.springframework.batch.core.launch.support.SimpleJobOperator"
 		p:jobLauncher-ref="jobLauncher" p:jobExplorer-ref="jobExplorer"
@@ -51,6 +45,12 @@
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager" lazy-init="true">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
+
+<!--
+	<bean id="transactionManager"
+		class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />
+-->
+
 
 	<bean id="placeholderProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location" value="classpath:batch.properties" />
